@@ -39,6 +39,9 @@ CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "config.yaml"
 # GLORYS12 reanalysis, daily mean, physics (temperature + salinity)
 DATASET_ID = "cmems_mod_glo_phy_my_0.083deg_P1D-m"
 
+# Download slightly deeper than the deepest target depth (1000 m)
+# so that 1000 m can be interpolated from native GLORYS levels.
+DOWNLOAD_MAX_DEPTH = 1100
 
 def load_config():
     with open(CONFIG_PATH, "r") as f:
@@ -86,7 +89,7 @@ def month_ranges(start_date: str, end_date: str):
 
 def fetch_glorys_month(region, depths, raw_dir, chunk_start, chunk_end, label,
                         variables, overwrite=False, max_retries=2):
-    out_name = f"glorys_{label}.nc"
+    out_name = f"glorys_{label}_deep.nc"
     out_path = raw_dir / out_name
 
     if out_path.exists() and not overwrite:
@@ -106,7 +109,7 @@ def fetch_glorys_month(region, depths, raw_dir, chunk_start, chunk_end, label,
                 minimum_latitude=region["latitude_min"],
                 maximum_latitude=region["latitude_max"],
                 minimum_depth=min(depths),
-                maximum_depth=max(depths),
+                maximum_depth=DOWNLOAD_MAX_DEPTH,
                 start_datetime=f"{chunk_start}T00:00:00",
                 end_datetime=f"{chunk_end}T23:59:59",
                 output_filename=out_name,
@@ -137,8 +140,8 @@ def fetch_glorys(start_date: str, end_date: str, variables=None, overwrite=False
     chunks = month_ranges(start_date, end_date)
     print(f"Fetching GLORYS in {len(chunks)} monthly chunk(s): "
           f"{chunks[0][2]} to {chunks[-1][2]}")
-    print(f"Region: {region}, depths 0-{max(depths)}m, vars={variables}\n")
-
+    print(f"Region: {region}, download depths 0-{DOWNLOAD_MAX_DEPTH}m, "
+      f"target depths 0-{max(depths)}m, vars={variables}\n")
     succeeded, failed = [], []
 
     for chunk_start, chunk_end, label in chunks:
