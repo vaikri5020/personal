@@ -98,13 +98,33 @@ def standardize_coords(ds: xr.Dataset) -> xr.Dataset:
     return ds.rename(rename) if rename else ds
 
 
+def _floor_to_day(ds: xr.Dataset) -> xr.Dataset:
+    """Normalize the time coordinate to midnight of its calendar day.
+
+    Different CMEMS/ASCAT products can stamp daily files at different
+    times of day (00:00, 12:00, or an exact satellite overpass time).
+    Combining datasets whose time coordinates don't match EXACTLY causes
+    xarray to silently outer-join on assignment (ds["var"] = other_da),
+    filling any non-matching day with NaN for that variable - or, if the
+    mismatch is systematic across every day (not just a few edge cases),
+    can collapse the usable overlap down to almost nothing. This is the
+    most likely cause of a served time series returning the same value
+    for every requested date: if only a handful of days truly line up
+    across all four sources, every nearby date snaps to one of them.
+    Flooring every source's time coordinate to the day before combining
+    fixes this regardless of each product's own time-of-day convention.
+    """
+    day_values = ds["time"].values.astype("datetime64[D]").astype("datetime64[ns]")
+    return ds.assign_coords(time=day_values)
+
+
 def open_surface_stack(processed_dir: Path) -> xr.Dataset:
     """Open every regridded surface file, pick out the right variable for
     each channel, and combine them into one Dataset on the shared grid."""
-    sst_ds = standardize_coords(xr.open_dataset(processed_dir / "sst_2021_01_06_regridded.nc"))
-    sss_ds = standardize_coords(xr.open_dataset(processed_dir / "sss_2021_01_06_regridded.nc"))
-    ssh_ds = standardize_coords(xr.open_dataset(processed_dir / "ssh_currents_2021_01_06_regridded.nc"))
-    wind_ds = standardize_coords(xr.open_dataset(processed_dir / "wind_metopb_2021_01_06_regridded.nc"))
+    sst_ds = _floor_to_day(standardize_coords(xr.open_dataset(processed_dir / "sst_2021_01_06_regridded.nc")))
+    sss_ds = _floor_to_day(standardize_coords(xr.open_dataset(processed_dir / "sss_2021_01_06_regridded.nc")))
+    ssh_ds = _floor_to_day(standardize_coords(xr.open_dataset(processed_dir / "ssh_currents_2021_01_06_regridded.nc")))
+    wind_ds = _floor_to_day(standardize_coords(xr.open_dataset(processed_dir / "wind_metopb_2021_01_06_regridded.nc")))
 
     print("Variables found in each regridded file (verify CHANNEL_VAR_HINTS matches these):")
     print("  sst_ds:", list(sst_ds.data_vars))
@@ -112,18 +132,41 @@ def open_surface_stack(processed_dir: Path) -> xr.Dataset:
     print("  ssh_ds:", list(ssh_ds.data_vars))
     print("  wind_ds:", list(wind_ds.data_vars))
 
-    surface = xr.Dataset()
-    surface["sst"] = sst_ds[find_var(sst_ds, CHANNEL_VAR_HINTS["sst"], "sst")]
-    surface["sss"] = sss_ds[find_var(sss_ds, CHANNEL_VAR_HINTS["sss"], "sss")].squeeze("depth", drop=True)
-    surface["sla"] = ssh_ds[find_var(ssh_ds, CHANNEL_VAR_HINTS["sla"], "sla")]
-    surface["ugos"] = ssh_ds[find_var(ssh_ds, CHANNEL_VAR_HINTS["ugos"], "ugos")]
-    surface["vgos"] = ssh_ds[find_var(ssh_ds, CHANNEL_VAR_HINTS["vgos"], "vgos")]
-    surface["eastward_wind"] = wind_ds[find_var(wind_ds, CHANNEL_VAR_HINTS["eastward_wind"], "eastward_wind")]
-    surface["northward_wind"] = wind_ds[find_var(wind_ds, CHANNEL_VAR_HINTS["northward_wind"], "northward_wind")]
+    sst_var = sst_ds[find_var(sst_ds, CHANNEL_VAR_HINTS["sst"], "sst")]
+    sss_var = sss_ds[find_var(sss_ds, CHANNEL_VAR_HINTS["sss"], "sss")].squeeze("depth", drop=True)
+    sla_var = ssh_ds[find_var(ssh_ds, CHANNEL_VAR_HINTS["sla"], "sla")]
+    ugos_var = ssh_ds[find_var(ssh_ds, CHANNEL_VAR_HINTS["ugos"], "ugos")]
+    vgos_var = ssh_ds[find_var(ssh_ds, CHANNEL_VAR_HINTS["vgos"], "vgos")]
+    east_wind_var = wind_ds[find_var(wind_ds, CHANNEL_VAR_HINTS["eastward_wind"], "eastward_wind")]
+    north_wind_var = wind_ds[find_var(wind_ds, CHANNEL_VAR_HINTS["northward_wind"], "northward_wind")]
 
-    # All four sources are already on the same regridded grid, but align
-    # explicitly in case any is missing a handful of edge time steps.
-    surface = xr.align(surface, join="inner")[0] if isinstance(surface, tuple) else surface
+    # THE ACTUAL FIX: align all seven DataArrays against each other with an
+    # explicit inner join, in one call, BEFORE they're combined into a
+    # single Dataset - not an outer-join-by-assignment followed by a
+    # meaningless single-argument xr.align() call afterward (which is what
+    # was here before and did nothing).
+    (sst_var, sss_var, sla_var, ugos_var, vgos_var,
+     east_wind_var, north_wind_var) = xr.align(
+        sst_var, sss_var, sla_var, ugos_var, vgos_var, east_wind_var, north_wind_var,
+        join="inner",
+    )
+
+    n_days = sst_var.sizes["time"]
+    print(f"\nAfter aligning all 4 sources on calendar day: {n_days} common days remain.")
+    if n_days < 30:
+        print("  [WARNING] That's suspiciously few for a 6-month dataset - check whether "
+              "one source has a genuinely shorter date range, or a differently-encoded "
+              "time coordinate that _floor_to_day() isn't fully normalizing.")
+
+    surface = xr.Dataset({
+        "sst": sst_var,
+        "sss": sss_var,
+        "sla": sla_var,
+        "ugos": ugos_var,
+        "vgos": vgos_var,
+        "eastward_wind": east_wind_var,
+        "northward_wind": north_wind_var,
+    })
     return surface
 
 
