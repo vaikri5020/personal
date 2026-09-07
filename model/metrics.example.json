@@ -1,0 +1,37 @@
+{
+  "model": {
+    "name": "OceanEmbed-ViT v1",
+    "framework": "pytorch",
+    "embedding": "ViT encoder, 128-d latent",
+    "depth_levels": 15
+  },
+  "overall": {
+    "rmse_c": 1.23,
+    "correlation": 0.92,
+    "bias_c": -0.08,
+    "n_profiles": 4521
+  },
+  "per_depth": [
+    { "depth_m": 0, "rmse_c": 0.72, "correlation": 0.99, "bias_c": 0.05, "n": 4521 },
+    { "depth_m": 5, "rmse_c": 0.73, "correlation": 0.99, "bias_c": 0.05, "n": 4521 },
+    { "depth_m": 10, "rmse_c": 0.75, "correlation": 0.98, "bias_c": 0.04, "n": 4521 },
+    { "depth_m": 20, "rmse_c": 0.81, "correlation": 0.98, "bias_c": 0.03, "n": 4521 },
+    { "depth_m": 30, "rmse_c": 0.92, "correlation": 0.97, "bias_c": 0.02, "n": 4521 },
+    { "depth_m": 50, "rmse_c": 1.05, "correlation": 0.96, "bias_c": 0.01, "n": 4521 },
+    { "depth_m": 75, "rmse_c": 1.18, "correlation": 0.95, "bias_c": -0.02, "n": 4521 },
+    { "depth_m": 100, "rmse_c": 1.24, "correlation": 0.94, "bias_c": -0.05, "n": 4521 },
+    { "depth_m": 125, "rmse_c": 1.21, "correlation": 0.94, "bias_c": -0.08, "n": 4521 },
+    { "depth_m": 150, "rmse_c": 1.16, "correlation": 0.93, "bias_c": -0.10, "n": 4521 },
+    { "depth_m": 200, "rmse_c": 1.08, "correlation": 0.93, "bias_c": -0.12, "n": 4521 },
+    { "depth_m": 300, "rmse_c": 0.98, "correlation": 0.92, "bias_c": -0.11, "n": 4521 },
+    { "depth_m": 500, "rmse_c": 0.85, "correlation": 0.91, "bias_c": -0.09, "n": 4521 },
+    { "depth_m": 700, "rmse_c": 0.78, "correlation": 0.90, "bias_c": -0.06, "n": 4521 },
+    { "depth_m": 1000, "rmse_c": 0.72, "correlation": 0.89, "bias_c": -0.03, "n": 4521 }
+  ],
+  "validation": {
+    "dataset": "INCOIS LAS Gridded ARGO",
+    "period": "2018-01-01 to 2023-12-31",
+    "region": "5N-30N, 45E-105E",
+    "resolution": "0.25 x 0.25 degree"
+  }
+}

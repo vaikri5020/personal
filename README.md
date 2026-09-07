@@ -36,6 +36,24 @@ Visualization
 
 **Python • PyTorch • Django • React • NumPy • Xarray**
 
+### 🔌 Backend
+
+The Django backend is available in this repository and exposes stable JSON APIs for frontend and AI/ML integration.
+
+```bash
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+Backend docs: [`BACKEND_API.md`](BACKEND_API.md)
+
+After starting Django, open this test page to try the backend without a separate frontend setup:
+
+```text
+http://127.0.0.1:8000/test/
+```
+
 ### 📊 Evaluation
 
 * RMSE

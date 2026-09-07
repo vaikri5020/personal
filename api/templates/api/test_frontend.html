@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OceanDepth AI Backend Tester</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #061826;
+      --panel: #0d2638;
+      --panel-2: #12354b;
+      --text: #eef8ff;
+      --muted: #9ec3d8;
+      --accent: #39c7d8;
+      --danger: #ff7b7b;
+      --ok: #79e29d;
+      --border: rgba(255, 255, 255, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #16466b 0, var(--bg) 40%, #02080d 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 32px 20px 16px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    h1 { margin: 0 0 8px; font-size: clamp(28px, 5vw, 48px); }
+    p { color: var(--muted); line-height: 1.6; }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 20px 40px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    section {
+      background: linear-gradient(180deg, rgba(18, 53, 75, 0.94), rgba(13, 38, 56, 0.94));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+    }
+
+    section.full { grid-column: 1 / -1; }
+    h2 { margin: 0 0 14px; font-size: 20px; }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin: 12px 0 6px;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      color: var(--text);
+      background: rgba(4, 17, 27, 0.72);
+      outline: none;
+    }
+
+    input:focus, textarea:focus { border-color: var(--accent); }
+    textarea { min-height: 92px; resize: vertical; }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    button {
+      margin-top: 14px;
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 16px;
+      color: #021018;
+      background: linear-gradient(135deg, #66f0ff, #79e29d);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      color: var(--text);
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+    }
+
+    .button-row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .dot { width: 9px; height: 9px; border-radius: 999px; background: var(--danger); }
+    .dot.ok { background: var(--ok); }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #02080d;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      min-height: 220px;
+      color: #d8f6ff;
+    }
+
+    .hint { font-size: 13px; margin-bottom: 0; }
+
+    @media (max-width: 760px) {
+      main { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>OceanDepth AI Backend Tester</h1>
+    <p>Use this page to test signup, login, recovery, session status, and ocean temperature prediction APIs.</p>
+    <span class="status"><span id="sessionDot" class="dot"></span><span id="sessionText">Checking session...</span></span>
+  </header>
+
+  <main>
+    <section>
+      <h2>Signup</h2>
+      <label for="signupUsername">Username</label>
+      <input id="signupUsername" value="palak123" autocomplete="username">
+      <label for="signupEmail">Email</label>
+      <input id="signupEmail" type="email" value="palak123@example.com" autocomplete="email">
+      <label for="signupOtp">Email OTP</label>
+      <input id="signupOtp" inputmode="numeric" placeholder="6-digit code from Gmail">
+      <label for="signupPassword">Password</label>
+      <input id="signupPassword" type="password" value="OceanDepthSafePass123" autocomplete="new-password">
+      <div class="button-row">
+        <button onclick="sendEmailOtp()">Send OTP</button>
+        <button class="secondary" onclick="verifyEmailOtp()">Verify OTP</button>
+        <button onclick="signup()">Create Account</button>
+      </div>
+      <p class="hint">Email must be verified before signup when Gmail SMTP is configured. Password is hashed by Django.</p>
+    </section>
+
+    <section>
+      <h2>Login</h2>
+      <label for="loginIdentifier">Username or Email</label>
+      <input id="loginIdentifier" value="palak123@example.com" autocomplete="username">
+      <label for="loginPassword">Password</label>
+      <input id="loginPassword" type="password" value="OceanDepthSafePass123" autocomplete="current-password">
+      <div class="button-row">
+        <button onclick="loginUser()">Login</button>
+        <button class="secondary" onclick="logoutUser()">Logout</button>
+        <button class="secondary" onclick="checkMe()">Check Me</button>
+      </div>
+      <p class="hint">Login accepts either username or email through the same field.</p>
+    </section>
+
+    <section>
+      <h2>Recovery</h2>
+      <label for="recoveryEmail">Registered Email</label>
+      <input id="recoveryEmail" type="email" value="palak123@example.com">
+      <div class="button-row">
+        <button onclick="forgotUsername()">Forgot Username</button>
+        <button class="secondary" onclick="forgotPassword()">Forgot Password</button>
+      </div>
+      <p class="hint">This returns safe generic messages. Real email sending is not configured yet.</p>
+    </section>
+
+    <section>
+      <h2>Prediction</h2>
+      <div class="row">
+        <div>
+          <label for="latitude">Latitude</label>
+          <input id="latitude" type="number" value="15.5" step="0.25">
+        </div>
+        <div>
+          <label for="longitude">Longitude</label>
+          <input id="longitude" type="number" value="72.8" step="0.25">
+        </div>
+      </div>
+      <label for="predictionDate">Date</label>
+      <input id="predictionDate" type="date" value="2026-01-15">
+      <label for="depths">Depths, comma separated</label>
+      <input id="depths" value="0,50,100,200,500,1000">
+      <label for="sst">Demo SST</label>
+      <input id="sst" type="number" value="28.4" step="0.1">
+      <button onclick="predict()">Predict Temperature</button>
+      <p class="hint">Prediction requires login. Current result is demo/mock until AI/ML model is connected.</p>
+    </section>
+
+    <section class="full">
+      <h2>API Response</h2>
+      <pre id="output">Ready.</pre>
+    </section>
+  </main>
+
+  <script>
+    const apiBase = "/api";
+    let emailVerificationToken = "";
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(";").shift();
+      return "";
+    }
+
+    async function csrfReady() {
+      await fetch(`${apiBase}/auth/csrf/`, { credentials: "include" });
+    }
+
+    async function apiFetch(path, options = {}) {
+      await csrfReady();
+      const response = await fetch(`${apiBase}${path}`, {
+        credentials: "include",
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+          ...(options.headers || {})
+        }
+      });
+
+      const text = await response.text();
+      let data;
+      try { data = text ? JSON.parse(text) : {}; } catch { data = text; }
+      showOutput(response.status, data);
+      await updateSessionStatus(false);
+      return { response, data };
+    }
+
+    function showOutput(status, data) {
+      document.getElementById("output").textContent = JSON.stringify({ status, data }, null, 2);
+    }
+
+    async function updateSessionStatus(showResult = true) {
+      const response = await fetch(`${apiBase}/auth/me/`, { credentials: "include" });
+      const data = await response.json();
+      const dot = document.getElementById("sessionDot");
+      const text = document.getElementById("sessionText");
+      if (response.ok && data.authenticated) {
+        dot.classList.add("ok");
+        text.textContent = `Logged in as ${data.user.username}`;
+      } else {
+        dot.classList.remove("ok");
+        text.textContent = "Not logged in";
+      }
+      if (showResult) showOutput(response.status, data);
+    }
+
+    async function sendEmailOtp() {
+      await apiFetch("/auth/send-email-otp/", {
+        method: "POST",
+        body: JSON.stringify({ email: document.getElementById("signupEmail").value })
+      });
+    }
+
+    async function verifyEmailOtp() {
+      const result = await apiFetch("/auth/verify-email-otp/", {
+        method: "POST",
+        body: JSON.stringify({
+          email: document.getElementById("signupEmail").value,
+          otp: document.getElementById("signupOtp").value
+        })
+      });
+      if (result.response.ok && result.data.email_verification_token) {
+        emailVerificationToken = result.data.email_verification_token;
+      }
+    }
+
+    async function signup() {
+      await apiFetch("/auth/signup/", {
+        method: "POST",
+        body: JSON.stringify({
+          username: document.getElementById("signupUsername").value,
+          email: document.getElementById("signupEmail").value,
+          password: document.getElementById("signupPassword").value,
+          email_verification_token: emailVerificationToken
+        })
+      });
+    }
+
+    async function loginUser() {
+      await apiFetch("/auth/login/", {
+        method: "POST",
+        body: JSON.stringify({
+          identifier: document.getElementById("loginIdentifier").value,
+          password: document.getElementById("loginPassword").value
+        })
+      });
+    }
+
+    async function logoutUser() {
+      await apiFetch("/auth/logout/", { method: "POST", body: JSON.stringify({}) });
+    }
+
+    async function checkMe() {
+      await updateSessionStatus(true);
+    }
+
+    async function forgotUsername() {
+      await apiFetch("/auth/forgot-username/", {
+        method: "POST",
+        body: JSON.stringify({ email: document.getElementById("recoveryEmail").value })
+      });
+    }
+
+    async function forgotPassword() {
+      await apiFetch("/auth/forgot-password/", {
+        method: "POST",
+        body: JSON.stringify({ email: document.getElementById("recoveryEmail").value })
+      });
+    }
+
+    async function predict() {
+      const depths = document.getElementById("depths").value
+        .split(",")
+        .map((item) => Number(item.trim()))
+        .filter((item) => !Number.isNaN(item));
+
+      await apiFetch("/predict/", {
+        method: "POST",
+        body: JSON.stringify({
+          latitude: Number(document.getElementById("latitude").value),
+          longitude: Number(document.getElementById("longitude").value),
+          date: document.getElementById("predictionDate").value,
+          depths,
+          surface_observations: {
+            sst: Number(document.getElementById("sst").value)
+          }
+        })
+      });
+    }
+
+    updateSessionStatus(false);
+  </script>
+</body>
+</html>

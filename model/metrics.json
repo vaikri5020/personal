@@ -1,0 +1,123 @@
+{
+  "model": {
+    "name": "OceanEmbed v2 (CNN + Center Skip)"
+  },
+  "overall": {
+    "rmse_c": 4.37,
+    "correlation": 0.95,
+    "bias_c": 3.66,
+    "n_profiles": 8
+  },
+  "per_depth": [
+    {
+      "depth_m": 0,
+      "rmse_c": 0.51,
+      "correlation": 0.99,
+      "bias_c": 0.51,
+      "n": 8
+    },
+    {
+      "depth_m": 5,
+      "rmse_c": 0.59,
+      "correlation": 0.99,
+      "bias_c": 0.59,
+      "n": 8
+    },
+    {
+      "depth_m": 10,
+      "rmse_c": 0.79,
+      "correlation": 0.99,
+      "bias_c": 0.79,
+      "n": 8
+    },
+    {
+      "depth_m": 20,
+      "rmse_c": 1.54,
+      "correlation": 0.99,
+      "bias_c": 1.54,
+      "n": 8
+    },
+    {
+      "depth_m": 30,
+      "rmse_c": 3.11,
+      "correlation": 0.99,
+      "bias_c": 3.11,
+      "n": 8
+    },
+    {
+      "depth_m": 50,
+      "rmse_c": 5.91,
+      "correlation": 0.99,
+      "bias_c": 5.91,
+      "n": 8
+    },
+    {
+      "depth_m": 75,
+      "rmse_c": 8.22,
+      "correlation": 0.99,
+      "bias_c": 8.22,
+      "n": 8
+    },
+    {
+      "depth_m": 100,
+      "rmse_c": 7.59,
+      "correlation": 0.99,
+      "bias_c": 7.59,
+      "n": 8
+    },
+    {
+      "depth_m": 125,
+      "rmse_c": 6.19,
+      "correlation": 0.99,
+      "bias_c": 6.19,
+      "n": 8
+    },
+    {
+      "depth_m": 150,
+      "rmse_c": 5.07,
+      "correlation": 0.99,
+      "bias_c": 5.07,
+      "n": 8
+    },
+    {
+      "depth_m": 200,
+      "rmse_c": 3.9,
+      "correlation": 0.99,
+      "bias_c": 3.9,
+      "n": 8
+    },
+    {
+      "depth_m": 300,
+      "rmse_c": 3.36,
+      "correlation": 0.99,
+      "bias_c": 3.36,
+      "n": 8
+    },
+    {
+      "depth_m": 500,
+      "rmse_c": 3.27,
+      "correlation": 0.99,
+      "bias_c": 3.27,
+      "n": 8
+    },
+    {
+      "depth_m": 700,
+      "rmse_c": 2.93,
+      "correlation": 0.99,
+      "bias_c": 2.93,
+      "n": 8
+    },
+    {
+      "depth_m": 1000,
+      "rmse_c": 1.87,
+      "correlation": 0.99,
+      "bias_c": 1.87,
+      "n": 8
+    }
+  ],
+  "validation": {
+    "dataset": "Model self-consistency check (synthetic NIO profiles)",
+    "period": "2023-06-15 (single timestep snapshot)",
+    "region": "5N-30N, 45E-105E"
+  }
+}

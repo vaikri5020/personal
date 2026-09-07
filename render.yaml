@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: OceanEmbed
+    runtime: python
+    pythonVersion: "3.12"
+    buildCommand: pip install -r requirements.txt && pip install tensorflow-cpu numpy
+    startCommand: gunicorn config.wsgi:application
+    envVars:
+      - key: SUPABASE_URL
+        sync: false

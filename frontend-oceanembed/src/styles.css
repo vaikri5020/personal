@@ -1,0 +1,147 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * OceanEmbed design system — deep-ocean scientific dashboard.
+ * All colors are oklch semantic tokens. Never hardcode colors in components.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-panel: var(--panel);
+  --color-panel-foreground: var(--panel-foreground);
+  --color-warm: var(--warm);
+  --color-cool: var(--cool);
+  --color-teal: var(--teal);
+  --color-lime: var(--lime);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.875rem;
+  --background: oklch(0.16 0.045 258);
+  --foreground: oklch(0.96 0.01 240);
+  --card: oklch(0.22 0.048 258 / 70%);
+  --card-foreground: oklch(0.96 0.01 240);
+  --popover: oklch(0.2 0.05 258);
+  --popover-foreground: oklch(0.96 0.01 240);
+  --primary: oklch(0.65 0.16 240);
+  --primary-foreground: oklch(0.16 0.045 258);
+  --secondary: oklch(0.28 0.05 258);
+  --secondary-foreground: oklch(0.95 0.01 240);
+  --muted: oklch(0.26 0.045 258);
+  --muted-foreground: oklch(0.72 0.03 245);
+  --accent: oklch(0.72 0.14 205);
+  --accent-foreground: oklch(0.16 0.045 258);
+  --destructive: oklch(0.62 0.2 25);
+  --destructive-foreground: oklch(0.97 0.01 240);
+  --border: oklch(0.98 0.02 240 / 12%);
+  --input: oklch(0.98 0.02 240 / 14%);
+  --ring: oklch(0.65 0.16 240);
+  --panel: oklch(0.2 0.05 259 / 78%);
+  --panel-foreground: oklch(0.96 0.01 240);
+  --warm: oklch(0.7 0.2 40);
+  --cool: oklch(0.66 0.16 250);
+  --teal: oklch(0.75 0.13 195);
+  --lime: oklch(0.85 0.17 130);
+  --chart-1: oklch(0.72 0.15 240);
+  --chart-2: oklch(0.75 0.13 195);
+  --chart-3: oklch(0.7 0.2 40);
+  --chart-4: oklch(0.85 0.17 130);
+  --chart-5: oklch(0.7 0.16 300);
+
+  --gradient-abyss: radial-gradient(
+      120% 90% at 12% 0%,
+      oklch(0.3 0.09 240 / 55%) 0%,
+      transparent 60%
+    ),
+    radial-gradient(100% 80% at 90% 10%, oklch(0.34 0.1 210 / 40%) 0%, transparent 65%),
+    linear-gradient(180deg, oklch(0.19 0.05 258) 0%, oklch(0.13 0.04 258) 100%);
+  --gradient-scale: linear-gradient(
+    to top,
+    oklch(0.55 0.16 255),
+    oklch(0.68 0.15 235),
+    oklch(0.75 0.13 195),
+    oklch(0.85 0.17 130),
+    oklch(0.87 0.17 90),
+    oklch(0.72 0.2 45),
+    oklch(0.6 0.22 25)
+  );
+  --shadow-panel: 0 18px 40px -24px oklch(0.05 0.03 258 / 90%);
+  --shadow-glow: 0 0 0 1px oklch(0.65 0.16 240 / 35%), 0 12px 32px -16px oklch(0.65 0.16 240 / 45%);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    background-image: var(--gradient-abyss);
+    background-attachment: fixed;
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+  }
+}
+
+@utility panel-surface {
+  background-color: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(14px);
+}
+
+@utility label-caps {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+@utility temp-scale {
+  background-image: var(--gradient-scale);
+}
